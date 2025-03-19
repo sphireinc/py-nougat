@@ -9,9 +9,12 @@
 # - Once initialized, `obj.nougat(*keys, default=None)` can be used to retrieve nested 
 #   values from the object.
 
+from typing import Any, Dict, Optional, TypeVar, Union, overload, cast
 import types
 
-def nougat(self, *keys, default=None):
+T = TypeVar('T', bound=Dict[str, Any])
+
+def nougat(self: Dict[str, Any], *keys: str, default: Any = None) -> Any:
     """
     Safely access deeply nested dictionary values.
     
@@ -21,9 +24,6 @@ def nougat(self, *keys, default=None):
         
     Returns:
         The value at the nested location or the default value
-    
-    Raises:
-        AttributeError: If self doesn't support the get() method
     """
     result = self
     for i, key in enumerate(keys):
@@ -40,7 +40,8 @@ def nougat(self, *keys, default=None):
     
     return result
 
-def init_nougat(obj):
+
+def init_nougat(obj: T) -> T:
     """
     Add the nougat method to an object.
     
@@ -53,5 +54,5 @@ def init_nougat(obj):
     # Check if object can support nougat operations
     if not hasattr(obj, 'get'):
         raise AttributeError("Object must support dict-like 'get' method")
-    
-    obj.nougat = types.MethodType(nougat, obj)
+    obj.nougat = types.MethodType(nougat, obj)  # type: ignore
+    return obj
