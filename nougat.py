@@ -41,6 +41,13 @@ def nougat(self: Dict[str, Any], *keys: str, default: Any = None) -> Any:
     return result
 
 
+# Author Note: Monkey Patch Central, but works for Airflow
+def init_nougat_global() -> None:
+    """Globally add nougat method to all dictionary instances."""
+    if not hasattr(dict, 'nougat'):
+        setattr(dict, 'nougat', lambda self, *args, default=None: nougat(self, *args, default=default))
+
+
 def init_nougat(obj: T) -> T:
     """
     Add the nougat method to an object.
