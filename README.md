@@ -10,10 +10,10 @@ Nougat solves the common problem of accessing nested dictionary values without r
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/nougat.git
+git clone https://github.com/sphireinc/py-nougat.git
 
 # Install directly with pip
-pip install git+https://github.com/yourusername/nougat.git
+pip install git+https://github.com/sphireinc/py-nougat.git
 ```
 
 ## Usage
