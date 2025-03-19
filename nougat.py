@@ -60,7 +60,7 @@ def nougat_patch() -> None:
         if not hasattr(self, 'nougat'):
             # Use types.MethodType to bind it to the instance
             import types
-            self.nougat = types.MethodType(nougat, self)
+            self.nougat = types.MethodType(nougat, self)  # type: ignore
 
         return original_getitem(self, key)
 
