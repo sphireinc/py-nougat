@@ -23,7 +23,7 @@ pip install git+https://github.com/sphireinc/py-nougat.git
 ## Usage
 
 ```python
-from nougat import initNougat
+from nougat import init_nougat
 
 # Initialize a dictionary
 data = {
@@ -38,7 +38,7 @@ data = {
 }
 
 # Add nougat method to your dictionary
-initNougat(data)
+init_nougat(data)
 
 # Safely access nested values
 city = data.nougat("user", "profile", "address", "city")  # Returns "New York"
