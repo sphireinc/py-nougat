@@ -1,5 +1,7 @@
 # Nougat
 
+[![Test and Build](https://github.com/sphireinc/py-nougat/actions/workflows/test-and-build.yml/badge.svg)](https://github.com/sphireinc/py-nougat/actions/workflows/test-and-build.yml)
+
 <div align="center">
     <img src="logo/primary.svg" width="400px"  alt="logo" />
 
