@@ -36,7 +36,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest tests
+          pytest test_nougat.py
 
   build:
     name: Build and Package
