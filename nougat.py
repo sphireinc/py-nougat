@@ -65,7 +65,7 @@ def nougat_patch() -> None:
         return original_getitem(self, key)
 
     # Monkey-patch all dict instances by replacing __getitem__
-    dict.__getitem__ = patched_getitem
+    dict.__getitem__ = patched_getitem   # type: ignore
 
 
 def init_nougat(obj: T) -> T:
