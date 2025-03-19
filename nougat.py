@@ -40,7 +40,7 @@ def nougat(self, *keys, default=None):
     
     return result
 
-def initNougat(obj):
+def init_nougat(obj):
     """
     Add the nougat method to an object.
     
