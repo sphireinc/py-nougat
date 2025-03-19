@@ -47,6 +47,26 @@ def init_nougat_global() -> None:
     if not hasattr(dict, 'nougat'):
         setattr(dict, 'nougat', lambda self, *args, default=None: nougat(self, *args, default=default))
 
+# Author Note: Another Monkey Patch solution for when you can't modify dict
+def nougat_patch() -> None:
+    """Monkey-patch dictionary instances with the `nougat` method globally."""
+
+    # Original __getitem__ reference
+    original_getitem = dict.__getitem__
+
+    def patched_getitem(self, key):
+        """Wrapper that adds nougat dynamically when accessed."""
+        # Attach nougat once per dictionary instance
+        if not hasattr(self, 'nougat'):
+            # Use types.MethodType to bind it to the instance
+            import types
+            self.nougat = types.MethodType(nougat, self)
+
+        return original_getitem(self, key)
+
+    # Monkey-patch all dict instances by replacing __getitem__
+    dict.__getitem__ = patched_getitem
+
 
 def init_nougat(obj: T) -> T:
     """
