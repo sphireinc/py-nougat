@@ -1,6 +1,10 @@
 # Nougat
 
+<div align="center">
+    <img src="logo/primary.svg" width="400px"  alt="logo" />
+
 A lightweight Python utility for safely accessing deeply nested dictionary values.
+</div>
 
 ## Overview
 
