@@ -5,8 +5,13 @@
 [![Python Versions](https://img.shields.io/pypi/pyversions/pynougat.svg)](https://pypi.org/project/pynougat/)
 [![Test and Build](https://github.com/sphireinc/pynougat/actions/workflows/test-and-build.yml/badge.svg)](https://github.com/sphireinc/pynougat/actions/workflows/test-and-build.yml)
 
+![PyPI - Wheel](https://img.shields.io/pypi/wheel/pynougat)
+![GitHub Release](https://img.shields.io/github/v/release/sphireinc/pynougat)
+![GitHub repo size](https://img.shields.io/github/repo-size/sphireinc/pynougat)
+
+
 <div align="center">
-    <img src="logo/primary.svg" width="400px"  alt="logo" /><br/>
+    <img src="https://raw.githubusercontent.com/sphireinc/pynougat/main/logo/primary.svg" width="400px"  alt="logo" /><br/>
     A lightweight type-safe Python utility for safely accessing deeply nested dictionary values.
 </div>
 
