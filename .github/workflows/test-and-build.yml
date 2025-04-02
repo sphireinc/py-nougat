@@ -61,7 +61,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install setuptools wheel
 
-      - name: Build package
+      - name: Build package with poetry
+        run: |
+          poetry build
+
+      - name: Build package with setuptools
         run: |
           python setup.py sdist bdist_wheel
 
