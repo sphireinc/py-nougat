@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pynougat"
-version = "0.0.1"
+version = "0.0.2"
 description = "A lightweight type-safe Python utility for safely accessing deeply nested dictionary values"
 authors = ["Juan Sanchez <jsanchez@sphire.co>"]
 readme = "README.md"
@@ -13,7 +13,7 @@ license = "MIT"
 
 [project]
 name = "pynougat"
-version = "0.0.1"
+version = "0.0.2"
 description = "A lightweight type-safe Python utility for safely accessing deeply nested dictionary values"
 authors = [
     {name="Juan Sanchez", email="jsanchez@sphire.co"}
