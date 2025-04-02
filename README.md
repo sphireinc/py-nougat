@@ -1,9 +1,9 @@
 # Nougat 🍫
 
-[![PyPI version](https://badge.fury.io/py/pynougat.svg)](https://badge.fury.io/py/py-nougat)
+[![PyPI version](https://badge.fury.io/py/pynougat.svg)](https://badge.fury.io/py/pynougat)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python Versions](https://img.shields.io/pypi/pyversions/pynougat.svg)](https://pypi.org/project/py-nougat/)
-[![Test and Build](https://github.com/sphireinc/py-nougat/actions/workflows/test-and-build.yml/badge.svg)](https://github.com/sphireinc/pynougat/actions/workflows/test-and-build.yml)
+[![Python Versions](https://img.shields.io/pypi/pyversions/pynougat.svg)](https://pypi.org/project/pynougat/)
+[![Test and Build](https://github.com/sphireinc/pynougat/actions/workflows/test-and-build.yml/badge.svg)](https://github.com/sphireinc/pynougat/actions/workflows/test-and-build.yml)
 
 <div align="center">
     <img src="logo/primary.svg" width="400px"  alt="logo" /><br/>
