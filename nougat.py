@@ -1,85 +1,135 @@
-# nougat.py
-# This module provides a utility function for dynamically adding a method 
-# (`nougat`) to any object, allowing for safe access of deeply nested 
-# dictionary values. The `nougat` method iterates through a list of keys 
-# to retrieve the corresponding value, with customizable default behavior.
-# 
-# Usage:
-# - Call `initNougat(obj)` to add the `nougat` method to an object `obj`.
-# - Once initialized, `obj.nougat(*keys, default=None)` can be used to retrieve nested 
-#   values from the object.
+from typing import Any, List, Optional, Tuple, Union, Callable, TypeVar
+from functools import lru_cache
 
-from typing import Any, Dict, Optional, TypeVar, Union, overload, cast
-import types
+T = TypeVar('T')
 
-T = TypeVar('T', bound=Dict[str, Any])
 
-def nougat(self: Dict[str, Any], *keys: str, default: Any = None) -> Any:
+# Sentinel object for distinguishing between None and missing values
+_SENTINEL = object()
+
+
+def nougat(data: Any,
+               *keys: Union[str, int, Tuple[Union[str, int], ...]],
+               default: Any = None,
+               separator: Optional[str] = None,
+               transform: Optional[Callable[[Any], Any]] = None,
+               strict_types: bool = False) -> Any:
     """
-    Safely access deeply nested dictionary values.
-    
+    High-performance function to access deeply nested values in data structures.
+
     Args:
-        *keys: A sequence of keys to traverse
-        default: Value to return if any key is missing (default: None)
-        
+        data: Source data structure (dict, list, or object with __getitem__)
+        *keys: Keys to traverse. Can be:
+               - Individual keys (strings/integers)
+               - Tuples of keys to try alternatives (returns first match)
+               - Dot-separated string paths when separator is provided
+        default: Value to return if path doesn't exist
+        separator: If provided, splits string keys on this character
+        transform: Optional function to transform final value
+        strict_types: If True, fails with TypeError on invalid intermediate types
+
     Returns:
-        The value at the nested location or the default value
+        The value at the specified path or default if not found
+
+    Examples:
+        nougat(data, "users", 0, "name")
+        nougat(data, "users.0.name", separator=".")
+        nougat(data, ("user", "admin"), "settings") # Tries user.settings then admin.settings
     """
-    result = self
-    for i, key in enumerate(keys):
-        if not hasattr(result, 'get'):
-            # If we're at an intermediate value that isn't a dict-like object
-            return default
-        
-        # For the last key, use the provided default
-        if i == len(keys) - 1:
-            return result.get(key, default)
-        
-        # For intermediate keys, use empty dict as default to continue traversal
-        result = result.get(key, {})
-    
-    return result
+    if not keys:
+        return data
+
+    # Handle dot notation for paths
+    if separator is not None and len(keys) == 1 and isinstance(keys[0], str):
+        keys = keys[0].split(separator)
+
+    try:
+        result = data
+        for key in keys:
+            # Handle tuple of alternative keys
+            if isinstance(key, tuple):
+                for alt_key in key:
+                    try:
+                        if hasattr(result, 'get') and not isinstance(result, (list, tuple)):
+                            result = result.get(alt_key)
+                            break
+                        else:
+                            result = result[alt_key]
+                            break
+                    except (KeyError, IndexError, TypeError):
+                        continue
+                else:  # No matches found in alternatives
+                    result = default
+                continue
+
+            # Fast path for dicts
+            if isinstance(result, dict):
+                if key in result:
+                    result = result[key]
+                else:
+                    result = default
+            # Handle lists/tuples with integer indices
+            elif isinstance(result, (list, tuple)) and isinstance(key, int):
+                if 0 <= key < len(result):
+                    result = result[key]
+                else:
+                    result = default
+            # Handle objects with get method (like dict)
+            elif hasattr(result, 'get') and not isinstance(result, (list, tuple)):
+                result = result.get(key, _SENTINEL)
+                if result is _SENTINEL:
+                    result = default
+            # Handle objects with __getitem__ (subscriptable)
+            elif hasattr(result, '__getitem__'):
+                try:
+                    result = result[key]
+                except (KeyError, IndexError, TypeError):
+                    try:
+                        result = result[int(key)]
+                    except (KeyError, IndexError, TypeError):
+                        result = default
+            else:
+                if strict_types:
+                    raise TypeError(f"Cannot traverse {type(result).__name__} with key {key}")
+                result = default
+        res = transform(result) if transform else result
+        return res
+
+    except Exception:  # Catch any unexpected errors to ensure function doesn't raise
+        return transform(result) if transform else result
 
 
-# Author Note: Monkey Patch Central, but works for Airflow
-def init_nougat_global() -> None:
-    """Globally add nougat method to all dictionary instances."""
-    if not hasattr(dict, 'nougat'):
-        setattr(dict, 'nougat', lambda self, *args, default=None: nougat(self, *args, default=default))
+# Create a cached version for frequently accessed paths
+@lru_cache(maxsize=128)
+def _make_path_accessor(path: Tuple[Union[str, int, Tuple[Union[str, int], ...]], ...],
+                        separator: Optional[str] = None,
+                        strict: bool = False) -> Callable[[Any, Any, Optional[Callable]], Any]:
+    """Creates optimized accessor function for a specific path"""
 
-# Author Note: Another Monkey Patch solution for when you can't modify dict
-def nougat_patch() -> None:
-    """Monkey-patch dictionary instances with the `nougat` method globally."""
+    def accessor(data: Any, default: Any = None, transform: Optional[Callable] = None) -> Any:
+        return nougat(data, *path, default=default, separator=separator,
+                          transform=transform, strict_types=strict)
 
-    # Original __getitem__ reference
-    original_getitem = dict.__getitem__
-
-    def patched_getitem(self, key):
-        """Wrapper that adds nougat dynamically when accessed."""
-        # Attach nougat once per dictionary instance
-        if not hasattr(self, 'nougat'):
-            # Use types.MethodType to bind it to the instance
-            import types
-            self.nougat = types.MethodType(nougat, self)  # type: ignore
-
-        return original_getitem(self, key)
-
-    # Monkey-patch all dict instances by replacing __getitem__
-    dict.__getitem__ = patched_getitem   # type: ignore
+    return accessor
 
 
-def init_nougat(obj: T) -> T:
+def nougat_cached(path_components: Union[str, List[Union[str, int, Tuple]]],
+                      separator: Optional[str] = None,
+                      strict: bool = False) -> Callable:
     """
-    Add the nougat method to an object.
-    
+    Returns a cached function to efficiently retrieve the same path repeatedly.
+
     Args:
-        obj: Any object that supports dict-like behavior with get() method
-        
-    Raises:
-        AttributeError: If obj doesn't support the get() method
+        path_components: Either a dot-separated string or a list of path components
+        separator: Separator for string paths (default: None)
+        strict: Whether to use strict type checking
+
+    Returns:
+        A function that takes (data, default=None, transform=None) and returns the nested value
     """
-    # Check if object can support nougat operations
-    if not hasattr(obj, 'get'):
-        raise AttributeError("Object must support dict-like 'get' method")
-    obj.nougat = types.MethodType(nougat, obj)  # type: ignore
-    return obj
+    if isinstance(path_components, str) and separator:
+        path = tuple(path_components.split(separator))
+    else:
+        path = tuple(path_components if isinstance(path_components, (list, tuple)) else [path_components])
+
+    return _make_path_accessor(path, separator, strict)

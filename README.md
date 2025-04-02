@@ -1,18 +1,69 @@
-# Nougat
+# Nougat 🍫
 
+[![PyPI version](https://badge.fury.io/py/py-nougat.svg)](https://badge.fury.io/py/py-nougat)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python Versions](https://img.shields.io/pypi/pyversions/py-nougat.svg)](https://pypi.org/project/py-nougat/)
 [![Test and Build](https://github.com/sphireinc/py-nougat/actions/workflows/test-and-build.yml/badge.svg)](https://github.com/sphireinc/py-nougat/actions/workflows/test-and-build.yml)
 
 <div align="center">
-    <img src="logo/primary.svg" width="400px"  alt="logo" />
-
-A lightweight Python utility for safely accessing deeply nested dictionary values.
+    <img src="logo/primary.svg" width="400px"  alt="logo" /><br/>
+    A lightweight type-safe Python utility for safely accessing deeply nested dictionary values.
 </div>
 
 ## Overview
 
-Nougat solves the common problem of accessing nested dictionary values without raising KeyError exceptions. It provides a clean, chainable interface for traversing nested dictionaries, returning a default value when any key in the path doesn't exist.
+**Nougat** solves the common problem of accessing nested dictionary values without raising KeyError
+exceptions. It provides high-performance nested dictionary access with a clean, type-safe interface
+for traversing nested dictionaries, returning a default value when any key in the path doesn't exist. 
+Stop worrying about KeyError exceptions and messy null checks!
+
+## Problem
+
+Working with nested dictionaries in Python often leads to verbose, error-prone code:
+
+```python
+# Deeply nested access without Nougat
+data = {...}
+user_city = None
+if 'user' in data and data['user'] and 'profile' in data['user'] \
+        and data['user']['profile'] and 'address' in data['user']['profile']:
+    if 'city' in data['user']['profile']['address']:
+        user_city = data['user']['profile']['address']['city']
+```
+
+Or risky code that might raise exceptions:
+
+```python
+# Error-prone approach
+data = {...}
+try:
+    user_city = data['user']['profile']['address']['city']
+except (KeyError, TypeError):
+    user_city = None
+```
+
+## Solution
+
+**Nougat** provides a clean, performant way to safely access nested values:
+
+```python
+# With Nougat
+import nougat 
+
+data = {...}
+user_city = nougat(data, "user", "profile", "address", "city", default="Unknown")
+```
+
 
 ## Installation
+
+via pip:
+
+```bash
+pip install py-nougat
+```
+
+via git+pip:
 
 ```bash
 # Clone the repository
@@ -24,39 +75,105 @@ pip install git+https://github.com/sphireinc/py-nougat.git
 
 ## Usage
 
-```python
-from nougat import init_nougat
+### Basic Usage
 
-# Initialize a dictionary
+```python
+from nougat import nougat
+
+# Sample nested data
 data = {
     "user": {
         "profile": {
-            "name": "John Doe",
+            "name": "Alice",
             "address": {
-                "city": "New York"
+                "city": "Seattle",
+                "zip": "98101"
             }
-        }
+        },
+        "preferences": {
+            "theme": "dark"
+        },
+        "scores": [85, 92, 78]
     }
 }
 
-# Add nougat method to your dictionary
-init_nougat(data)
+# Simple path traversal
+name = nougat(data, "user", "profile", "name")  # "Alice"
 
-# Safely access nested values
-city = data.nougat("user", "profile", "address", "city")  # Returns "New York"
-country = data.nougat("user", "profile", "address", "country")  # Returns None (default)
+# Default values for missing paths
+country = nougat(data, "user", "profile", "address", "country", default="USA")  # "USA"
 
-# Specify a custom default value
-country = data.nougat("user", "profile", "address", "country", default="Unknown")  # Returns "Unknown"
+# Access list items
+second_score = nougat(data, "user", "scores", 1)  # 92
 
-# Works with any depth of nesting
-nonexistent = data.nougat("user", "settings", "theme", "color")  # Returns None, no errors
+# Path doesn't exist? No problem!
+missing = nougat(data, "user", "profile", "age", default=0)  # 0
+```
+
+### Advanced Features
+
+#### Dot Notation
+
+```python
+from nougat import nougat
+
+# Use dot strings for cleaner access
+theme = nougat(data, "user.preferences.theme", separator=".")  # "dark"
+```
+
+#### Alternative Keys
+
+```python
+from nougat import nougat
+
+# Try multiple keys at each level and use first match
+theme = nougat(data, ("users", "user"), "preferences", ("appearance", "theme"))
+```
+
+#### Value Transformation
+
+```python
+from nougat import nougat
+
+# Transform the returned value
+scores_sum = nougat(data, "user", "scores", transform=sum)  # 255 (85+92+78)
+```
+
+#### Path Caching for High Performance
+
+```python
+from nougat import nougat_cached
+
+# Create a reusable, cached accessor function for a specific path
+data1 = {}
+data2 = {}
+get_user_city = nougat_cached(["user", "profile", "address", "city"])
+
+# Use it repeatedly for high performance
+city1 = get_user_city(data1)
+city2 = get_user_city(data2)
+```
+
+#### Strict Type Checking
+
+```python
+from nougat import nougat
+
+# Enable strict type checking for better error identification
+nougat(data, "user", "profile", "address", strict_types=True)
 ```
 
 ## Features
 
 - Zero dependencies - just pure Python
-- Works with any dict-like object that implements a `get()` method
+- ⚡ **Highly optimized** for performance
+- 🛡️ **Type-safe** with full mypy support
+- 🧠 **Smart traversal** of dicts, lists, tuples, and custom objects
+- 🔄 **Alternative paths** to try multiple access routes
+- 🔍 **Dot notation** support for concise access patterns
+- 🚀 **Path caching** for repeated high-performance lookups
+- 🪄 **Value transformation** to process retrieved values
+- 🔒 **Never raises exceptions** for a clean, predictable API
 - Customizable default values
 - Handles any depth of nesting
 - Lightweight and fast
@@ -68,6 +185,29 @@ nonexistent = data.nougat("user", "settings", "theme", "color")  # Returns None,
 - Handling user input or preferences with optional fields
 - Any situation where you need to safely navigate nested dictionaries
 
+## Performance
+
+**Nougat** is optimized for high performance:
+
+- Fast paths for common data types
+- Minimal overhead for common operations
+- Path caching for repeated access
+- Exception-free operation
+
 ## License
 
-MIT
+MIT License - See LICENSE file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+Made with ❤️ for all Python developers tired of KeyError exceptions and messy `data.get('obj', {}).get('key', None)` chains
