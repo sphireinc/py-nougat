@@ -39,6 +39,7 @@ jobs:
 
       - name: Run tests
         run: |
+          PYTHONPATH=src pytest
           pytest tests/test_nougat.py
 
   build:
