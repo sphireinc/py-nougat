@@ -48,7 +48,7 @@ except (KeyError, TypeError):
 
 ```python
 # With Nougat
-import nougat 
+from src import nougat
 
 data = {...}
 user_city = nougat(data, "user", "profile", "address", "city", default="Unknown")
@@ -78,7 +78,7 @@ pip install git+https://github.com/sphireinc/pynougat.git
 ### Basic Usage
 
 ```python
-from nougat import nougat
+from src.pynougat import nougat
 
 # Sample nested data
 data = {
@@ -115,7 +115,7 @@ missing = nougat(data, "user", "profile", "age", default=0)  # 0
 #### Dot Notation
 
 ```python
-from nougat import nougat
+from src.pynougat import nougat
 
 # Use dot strings for cleaner access
 theme = nougat(data, "user.preferences.theme", separator=".")  # "dark"
@@ -124,7 +124,7 @@ theme = nougat(data, "user.preferences.theme", separator=".")  # "dark"
 #### Alternative Keys
 
 ```python
-from nougat import nougat
+from src.pynougat import nougat
 
 # Try multiple keys at each level and use first match
 theme = nougat(data, ("users", "user"), "preferences", ("appearance", "theme"))
@@ -133,7 +133,7 @@ theme = nougat(data, ("users", "user"), "preferences", ("appearance", "theme"))
 #### Value Transformation
 
 ```python
-from nougat import nougat
+from src.pynougat import nougat
 
 # Transform the returned value
 scores_sum = nougat(data, "user", "scores", transform=sum)  # 255 (85+92+78)
@@ -142,7 +142,7 @@ scores_sum = nougat(data, "user", "scores", transform=sum)  # 255 (85+92+78)
 #### Path Caching for High Performance
 
 ```python
-from nougat import nougat_cached
+from src.pynougat import nougat_cached
 
 # Create a reusable, cached accessor function for a specific path
 data1 = {}
@@ -157,7 +157,7 @@ city2 = get_user_city(data2)
 #### Strict Type Checking
 
 ```python
-from nougat import nougat
+from src.pynougat import nougat
 
 # Enable strict type checking for better error identification
 nougat(data, "user", "profile", "address", strict_types=True)

@@ -35,11 +35,11 @@ jobs:
 
       - name: Run linting (mypy)
         run: |
-          mypy nougat.py
+          mypy src/nougat.py
 
       - name: Run tests
         run: |
-          pytest test_nougat.py
+          pytest tests/test_nougat.py
 
   build:
     name: Build and Package
@@ -64,13 +64,22 @@ jobs:
       - name: Install package
         run: pip install -e .
 
-      - name: Build package with poetry
-        run: |
-          poetry build
+#      - name: Build package with setuptools
+#        run: |
+#          python setup.py sdist bdist_wheel
+#
+#      - name: Build package with poetry
+#        run: |
+#          poetry build
 
-      - name: Build package with setuptools
+      - name: Build package with python build
         run: |
-          python setup.py sdist bdist_wheel
+          python -m build
+
+      - name: Upload package artifact to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
 
       - name: Upload package artifact
         uses: actions/upload-artifact@v4

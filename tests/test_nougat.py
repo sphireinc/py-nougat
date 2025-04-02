@@ -4,7 +4,7 @@ import time
 from unittest.mock import MagicMock
 
 # Import Nougat functions
-from nougat import nougat, nougat_cached
+from src.pynougat import nougat, nougat_cached
 
 
 class TestNougat(unittest.TestCase):
