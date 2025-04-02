@@ -1,1 +1,1 @@
-from src.pynougat import nougat  # This makes 'nougat' available at package level
+from pynougat import nougat, nougat_cached  # This makes 'nougat' available at package level

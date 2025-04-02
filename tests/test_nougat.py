@@ -1,10 +1,14 @@
 import unittest
 from typing import NamedTuple
 import time
+import sys
+import os
 from unittest.mock import MagicMock
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+
 # Import Nougat functions
-from src.pynougat import nougat, nougat_cached
+from pynougat import nougat, nougat_cached
 
 
 class TestNougat(unittest.TestCase):
