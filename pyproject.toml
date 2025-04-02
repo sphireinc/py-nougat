@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "nougat"
+name = "pynougat"
 version = "0.1.0"
 description = ""
 authors = ["Juan Sanchez <jsanchez@sphire.co>"]

@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Tuple, Union, Callable, TypeVar
+from typing import Any, List, Optional, Tuple, Union, Callable, TypeVar, cast
 from functools import lru_cache
 
 T = TypeVar('T')
@@ -41,7 +41,7 @@ def nougat(data: Any,
 
     # Handle dot notation for paths
     if separator is not None and len(keys) == 1 and isinstance(keys[0], str):
-        keys = keys[0].split(separator)
+        keys = tuple(keys[0].split(separator))
 
     try:
         result = data
@@ -128,7 +128,8 @@ def nougat_cached(path_components: Union[str, List[Union[str, int, Tuple]]],
         A function that takes (data, default=None, transform=None) and returns the nested value
     """
     if isinstance(path_components, str) and separator:
-        path = tuple(path_components.split(separator))
+        # path = tuple(path_components.split(separator)) # mypy doesn't like this
+        path = tuple(cast(Union[str, int, Tuple], p) for p in path_components.split(separator))  # ✅ Fix: Cast elements properly
     else:
         path = tuple(path_components if isinstance(path_components, (list, tuple)) else [path_components])
 
